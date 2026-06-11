@@ -553,6 +553,9 @@
     <select id="sel-aufgabe">
       <option value="">Aufgabe wählen …</option>
     </select>
+    <input type="text" id="inp-auftrag" placeholder="Auftragsnummer (optional)"
+      style="margin-top:10px;width:100%;padding:14px 16px;border:1.5px solid var(--gruen-border);border-radius:10px;font-size:16px;color:var(--text);background:white;outline:none;"
+      oninput="pruefenButtonPruefen()">
   </div>
 
   <!-- SCHRITT 2: ZETTEL-FOTO -->
@@ -790,6 +793,7 @@ async function pruefen() {
       <div class="spinner"></div>
       <div class="lade-text">Claude liest die Chargennummern …</div>
     </div>`;
+  document.getElementById('inp-auftrag').value = '';
   document.getElementById('btn-pruefen').disabled = true;
 
   try {
@@ -883,7 +887,7 @@ function zeigeErgebnis(result, mitarbeiter, aufgabe) {
         <div class="ergebnis-icon">${alleOk ? '✅' : '❌'}</div>
         <div>
           <div class="ergebnis-titel">${alleOk ? 'Alles korrekt' : fehler + ' Fehler gefunden'}</div>
-          <div class="ergebnis-sub">${mitarbeiter} · ${aufgabe}</div>
+          <div class="ergebnis-sub">${mitarbeiter} · ${aufgabe}${document.getElementById('inp-auftrag').value.trim() ? ' · Auftrag ' + document.getElementById('inp-auftrag').value.trim() : ''}</div>
         </div>
       </div>
       <div class="soll-zeile">
@@ -921,6 +925,7 @@ async function sendeAnSheet(result, mitarbeiter, aufgabe) {
     const payload = {
       mitarbeiter,
       aufgabe,
+      auftragsnummer: document.getElementById('inp-auftrag').value.trim(),
       sollCharge: result.soll,
       etiketten: result.etiketten.map(e => ({ nummer: e.ist, ok: e.ok })),
       bilder: alleBilder
