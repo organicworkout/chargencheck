@@ -462,65 +462,9 @@
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
   }
-
-  /* API-KEY SETUP */
-  #key-setup {
-    position: fixed;
-    inset: 0;
-    background: var(--gruen);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 30px 24px;
-    z-index: 9999;
-    color: white;
-  }
-  #key-setup .logo-gross { font-size: 48px; font-weight: 900; letter-spacing: -2px; margin-bottom: 6px; }
-  #key-setup .setup-titel { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
-  #key-setup .setup-sub { font-size: 13px; opacity: 0.7; margin-bottom: 28px; text-align: center; line-height: 1.5; }
-  #key-setup input {
-    width: 100%;
-    padding: 14px 16px;
-    border-radius: 10px;
-    border: none;
-    font-size: 14px;
-    font-family: 'SF Mono', 'Courier New', monospace;
-    margin-bottom: 12px;
-    color: var(--text);
-  }
-  #key-setup .btn-speichern {
-    width: 100%;
-    padding: 16px;
-    background: white;
-    color: var(--gruen);
-    border: none;
-    border-radius: 10px;
-    font-size: 16px;
-    font-weight: 700;
-    cursor: pointer;
-  }
-  #key-setup .key-hinweis {
-    font-size: 11px;
-    opacity: 0.5;
-    margin-top: 16px;
-    text-align: center;
-    line-height: 1.5;
-  }
 </style>
 </head>
 <body>
-
-
-<!-- API-KEY SETUP (nur beim ersten Start) -->
-<div id="key-setup" style="display:none;">
-  <div class="logo-gross">CC</div>
-  <div class="setup-titel">Einrichtung</div>
-  <div class="setup-sub">Bitte einmalig den Anthropic API-Key eingeben.<br>Er wird sicher auf diesem Gerät gespeichert.</div>
-  <input type="password" id="key-input" placeholder="sk-ant-..." autocomplete="off" autocorrect="off" spellcheck="false">
-  <button class="btn-speichern" onclick="keySetupSpeichern()">Speichern &amp; starten</button>
-  <div class="key-hinweis">Der Key wird nur auf diesem Gerät gespeichert<br>und verlässt nie die App.</div>
-</div>
 
 <!-- LADESCREEN -->
 <div id="ladescreen">
@@ -553,9 +497,6 @@
     <select id="sel-aufgabe">
       <option value="">Aufgabe wählen …</option>
     </select>
-    <input type="text" id="inp-auftrag" placeholder="Auftragsnummer (optional)"
-      style="margin-top:10px;width:100%;padding:14px 16px;border:1.5px solid var(--gruen-border);border-radius:10px;font-size:16px;color:var(--text);background:white;outline:none;"
-      oninput="pruefenButtonPruefen()">
   </div>
 
   <!-- SCHRITT 2: ZETTEL-FOTO -->
@@ -601,7 +542,7 @@
 
 <script>
 // ============ KONFIGURATION ============
-const API_KEY = localStorage.getItem("ow_chargen_apikey") || "";
+const API_KEY = 'DEIN_API_KEY_HIER';
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwikYQTDsN955bddQjiUJSekEya7zD12riP5GgXcsn-Zz3U83B3pJ6itV-PYMaw7vAH/exec';
 // =======================================
 
@@ -611,40 +552,11 @@ let anzahlEtiketten = 1;
 let aktuellesFotoIndex = 0;  // welches Etikett wird gerade gemacht
 
 // ---- INIT ----
-
-// ---- API KEY SETUP ----
-function keySetupPruefen() {
-  const key = localStorage.getItem('ow_chargen_apikey');
-  if (!key || !key.startsWith('sk-ant-')) {
-    document.getElementById('key-setup').style.display = 'flex';
-    document.getElementById('ladescreen').style.display = 'none';
-    return false;
-  }
-  return true;
-}
-
-function keySetupSpeichern() {
-  const val = document.getElementById('key-input').value.trim();
-  if (!val.startsWith('sk-ant-')) {
-    alert('Bitte einen gültigen Anthropic API-Key eingeben (beginnt mit sk-ant-)');
-    return;
-  }
-  localStorage.setItem('ow_chargen_apikey', val);
-  document.getElementById('key-setup').style.display = 'none';
-  document.getElementById('ladescreen').style.display = 'flex';
-  startApp();
-}
-
 window.addEventListener('load', async () => {
-  if (!keySetupPruefen()) return;
-  startApp();
-});
-
-async function startApp() {
   await ladeEinstellungen();
   document.getElementById('ladescreen').style.opacity = '0';
   setTimeout(() => document.getElementById('ladescreen').style.display = 'none', 400);
-}
+});
 
 async function ladeEinstellungen() {
   try {
@@ -793,7 +705,6 @@ async function pruefen() {
       <div class="spinner"></div>
       <div class="lade-text">Claude liest die Chargennummern …</div>
     </div>`;
-  document.getElementById('inp-auftrag').value = '';
   document.getElementById('btn-pruefen').disabled = true;
 
   try {
@@ -844,7 +755,7 @@ Falls eine Nummer nicht lesbar ist, schreibe "NICHT LESBAR" als Wert.`
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': localStorage.getItem('ow_chargen_apikey') || API_KEY,
+        'x-api-key': API_KEY,
         'anthropic-version': '2023-06-01',
         'anthropic-dangerous-direct-browser-access': 'true'
       },
@@ -887,7 +798,7 @@ function zeigeErgebnis(result, mitarbeiter, aufgabe) {
         <div class="ergebnis-icon">${alleOk ? '✅' : '❌'}</div>
         <div>
           <div class="ergebnis-titel">${alleOk ? 'Alles korrekt' : fehler + ' Fehler gefunden'}</div>
-          <div class="ergebnis-sub">${mitarbeiter} · ${aufgabe}${document.getElementById('inp-auftrag').value.trim() ? ' · Auftrag ' + document.getElementById('inp-auftrag').value.trim() : ''}</div>
+          <div class="ergebnis-sub">${mitarbeiter} · ${aufgabe}</div>
         </div>
       </div>
       <div class="soll-zeile">
@@ -925,7 +836,6 @@ async function sendeAnSheet(result, mitarbeiter, aufgabe) {
     const payload = {
       mitarbeiter,
       aufgabe,
-      auftragsnummer: document.getElementById('inp-auftrag').value.trim(),
       sollCharge: result.soll,
       etiketten: result.etiketten.map(e => ({ nummer: e.ist, ok: e.ok })),
       bilder: alleBilder
