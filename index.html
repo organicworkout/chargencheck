@@ -862,7 +862,7 @@ Falls eine Nummer nicht lesbar ist, schreibe "NICHT LESBAR" als Wert.`
     const result = JSON.parse(clean);
 
     // Ergebnis anzeigen
-    zeigeErgebnis(result, mitarbeiter, aufgabe);
+    zeigeErgebnis(result, mitarbeiter, aufgabe, auftragsnummer);
 
     // An Google Sheet senden
     sendeAnSheet(result, mitarbeiter, aufgabe, auftragsnummer);
@@ -878,7 +878,7 @@ Falls eine Nummer nicht lesbar ist, schreibe "NICHT LESBAR" als Wert.`
   }
 }
 
-function zeigeErgebnis(result, mitarbeiter, aufgabe) {
+function zeigeErgebnis(result, mitarbeiter, aufgabe, auftragsnummer) {
   const fehler = result.etiketten.filter(e => !e.ok).length;
   const alleOk = fehler === 0;
 
